@@ -1,0 +1,2 @@
+[.] Create a rough project folder.
+[.] Setup Gemini LLM and test with "Tell me a joke" prompt.
