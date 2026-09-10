@@ -1,2 +1,17 @@
-[.] Create a rough project folder.
-[.] Setup Gemini LLM and test with "Tell me a joke" prompt.
+- - - - - All - - - - -
+
+[.] Create a wrapper client that logs the input, output, tokens and cost (And any other metadata). Use this throughout the project.
+[.] Make a simple dashbaord to track the usage. 
+
+
+
+- - - - - 10/09/2026 - - - - -
+
+[X] Create a rough project folder.
+[X] Setup Anthropic SDK and test with a simple prompt.
+
+
+
+- - - - - 11/09/2026 - - - - -
+
+
