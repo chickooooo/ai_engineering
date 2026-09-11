@@ -3,10 +3,76 @@ name = "ai-engineering"
 version = "0.1.0"
 description = ""
 readme = "README.md"
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "anthropic>=1.4.0",
-    "google-genai>=2.22.0",
+    "anthropic>=1.5.0",
+    "fastapi>=0.141.1",
+    "google-genai>=2.23.0",
+    "openai>=3.13.0",
     "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
     "python-dotenv>=1.2.3",
+    "uvicorn>=0.52.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# A src layout: the packages are installed, not picked up from the cwd
+[tool.hatch.build.targets.wheel]
+packages = ["src/app", "src/shared"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 79
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "BLE", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+
+# No untyped third-party types leak into our own code
+[[tool.mypy.overrides]]
+module = ["app.*", "shared.*"]
+disallow_any_unimported = true
+
+# On top of that, `shared` carries no `Any` at all. The app package is
+# exempt because every pydantic model subclass trips this rule on
+# pydantic's own internals.
+[[tool.mypy.overrides]]
+module = ["shared.*"]
+disallow_any_explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    # A deprecation in our own code should fail the suite, not scroll past
+    "error",
+    # Raised on `import starlette.testclient`: starlette 1.6.0, the latest
+    # release, still reads the `anyio.abc.BlockingPortal` alias that anyio
+    # 4.15 deprecated. Nothing on our side to fix; drop this line once
+    # starlette stops using it.
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[dependency-groups]
+dev = [
+    "mypy>=2.3.1",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.7",
 ]
