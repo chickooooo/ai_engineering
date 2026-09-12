@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.config import get_settings
-from app.routers import health
+from app.routers import health, root
 
 
 def create_app() -> FastAPI:
@@ -14,6 +14,7 @@ def create_app() -> FastAPI:
         title="AI Engineering",
         version="0.1.0",
     )
+    app.include_router(root.router)
     app.include_router(health.router)
 
     return app

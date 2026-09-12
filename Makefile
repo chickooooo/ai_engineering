@@ -19,6 +19,6 @@ format:
 	uv run ruff check --fix .
 	uv run ruff format .
 
-# Start the development server on http://127.0.0.1:8000, reloading on edit
+# Start the development server on http://127.0.0.1:8080, reloading on edit
 run:
-	uv run uvicorn app.main:app --reload --reload-dir src
+	uv run uvicorn app.main:app --port 8080 --reload --reload-dir src

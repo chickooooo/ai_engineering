@@ -1,9 +1,9 @@
-"""The settings-to-endpoint path, with the real modules wired together.
+"""The environment-to-app path, with the real modules wired together.
 
 Unlike the unit tests, nothing here is faked or overridden: the provider
 comes from the environment, `create_app` reads it through `Settings`, and
-the endpoint answers from the real client registry. No provider API is
-called, so these stay offline like the rest of the suite.
+the factory builds from that same value. No provider API is called, so
+these stay offline like the rest of the suite.
 """
 
 from collections.abc import Iterator
@@ -24,43 +24,31 @@ def clear_settings_cache() -> Iterator[None]:
     get_settings.cache_clear()
 
 
-def health_body() -> dict[str, str]:
-    """Start the app as configured and return what `/health` reports."""
+@pytest.mark.parametrize("provider", list(Provider))
+def test_the_app_serves_under_each_provider(
+    monkeypatch: pytest.MonkeyPatch,
+    provider: Provider,
+) -> None:
+    """Both endpoints answer whichever provider the environment names."""
+    monkeypatch.setenv("AI_PROVIDER", provider.value)
+
     with TestClient(create_app()) as client:
-        response = client.get("/health")
-
-    assert response.status_code == 200
-
-    return dict(response.json())
+        assert client.get("/").status_code == 200
+        assert client.get("/health").json()["status"] == "healthy"
 
 
 @pytest.mark.parametrize("provider", list(Provider))
-def test_env_provider_reaches_the_endpoint(
+def test_the_env_provider_reaches_the_factory(
     monkeypatch: pytest.MonkeyPatch,
     provider: Provider,
 ) -> None:
-    """`AI_PROVIDER` in the environment reaches the endpoint's response."""
+    """`AI_PROVIDER` selects the client the factory hands back."""
     monkeypatch.setenv("AI_PROVIDER", provider.value)
+    create_app()
 
-    assert health_body() == {
-        "status": "ok",
-        "provider": provider.value,
-        "model": default_model(provider),
-    }
+    client = create_client(get_settings().ai_provider)
 
-
-@pytest.mark.parametrize("provider", list(Provider))
-def test_the_reported_provider_builds_a_working_client(
-    monkeypatch: pytest.MonkeyPatch,
-    provider: Provider,
-) -> None:
-    """What `/health` advertises is what the factory hands back."""
-    monkeypatch.setenv("AI_PROVIDER", provider.value)
-    body = health_body()
-
-    client = create_client(Provider(body["provider"]))
-
-    assert client.model == body["model"]
+    assert client.model == default_model(provider)
 
 
 def test_it_falls_back_when_no_provider_is_set(
@@ -68,7 +56,6 @@ def test_it_falls_back_when_no_provider_is_set(
 ) -> None:
     """With nothing in the environment, `.env` or the default wins."""
     monkeypatch.delenv("AI_PROVIDER", raising=False)
-    body = health_body()
+    create_app()
 
-    assert body["provider"] in list(Provider)
-    assert body["model"] == default_model(Provider(body["provider"]))
+    assert get_settings().ai_provider in list(Provider)

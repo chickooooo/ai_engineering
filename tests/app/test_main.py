@@ -17,11 +17,11 @@ def clear_settings_cache() -> Iterator[None]:
     get_settings.cache_clear()
 
 
-def test_create_app_mounts_the_healthcheck() -> None:
-    """The built app exposes `/health` in its OpenAPI schema."""
+def test_create_app_mounts_every_router() -> None:
+    """The built app exposes both endpoints in its OpenAPI schema."""
     paths = create_app().openapi()["paths"]
 
-    assert "/health" in paths
+    assert set(paths) == {"/", "/health"}
 
 
 def test_create_app_returns_a_fresh_app() -> None:
