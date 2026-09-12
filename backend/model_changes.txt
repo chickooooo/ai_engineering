@@ -1,0 +1,80 @@
+================================================================
+2026-09-12  refresh
+sources:
+  ANTHROPIC  https://platform.claude.com/docs/en/about-claude/pricing
+             https://platform.claude.com/docs/en/about-claude/models/overview
+             https://platform.claude.com/docs/en/about-claude/model-deprecations
+  OPENAI     https://developers.openai.com/api/docs/pricing
+             https://developers.openai.com/api/docs/models
+  GEMINI     https://ai.google.dev/gemini-api/docs/pricing
+             https://ai.google.dev/gemini-api/docs/models
+
+added:
+  ANTHROPIC  claude-fable-5-1            in 10.00  cached 0.25   write 12.50  out 50.00
+  ANTHROPIC  claude-fable-5              in 10.00  cached 1.00   write 12.50  out 50.00
+  ANTHROPIC  claude-opus-5               in 5.00   cached 0.50   write 6.25   out 25.00
+  ANTHROPIC  claude-opus-4-8             in 5.00   cached 0.50   write 6.25   out 25.00
+  ANTHROPIC  claude-opus-4-7             in 5.00   cached 0.50   write 6.25   out 25.00
+  ANTHROPIC  claude-opus-4-6             in 5.00   cached 0.50   write 6.25   out 25.00
+  ANTHROPIC  claude-opus-4-5-20251101    in 5.00   cached 0.50   write 6.25   out 25.00
+  ANTHROPIC  claude-sonnet-5             in 2.00   cached 0.20   write 2.50   out 10.00
+  ANTHROPIC  claude-sonnet-4-6           in 3.00   cached 0.30   write 3.75   out 15.00
+  ANTHROPIC  claude-sonnet-4-5-20250929  in 3.00   cached 0.30   write 3.75   out 15.00
+  OPENAI     gpt-6-astra                 in 10.00  cached 1.00   write 12.50  out 50.00
+  OPENAI     gpt-5.6-sol                 in 4.00   cached 0.40   write 5.00   out 20.00
+  OPENAI     gpt-5.6-terra               in 2.00   cached 0.20   write 2.50   out 12.00
+  OPENAI     gpt-5.6-luna                in 0.20   cached 0.02   write 0.25   out 1.20
+  GEMINI     gemini-3.8-flash            in 0.75   cached 0.075  write 0      out 3.75
+  GEMINI     gemini-3.7-flash            in 0.75   cached 0.075  write 0      out 3.75
+  GEMINI     gemini-3.6-flash            in 0.75   cached 0.075  write 0      out 3.75
+  GEMINI     gemini-3.5-flash            in 1.50   cached 0.15   write 0      out 9.00
+  GEMINI     gemini-3.5-flash-lite       in 0.30   cached 0.03   write 0      out 2.50
+  GEMINI     gemini-3.1-flash-lite       in 0.25   cached 0.025  write 0      out 1.50
+  GEMINI     gemini-3.1-pro-preview      in 2.00   cached 0.20   write 0      out 12.00
+  GEMINI     gemini-2.5-pro              in 1.25   cached 0.125  write 0      out 10.00
+  GEMINI     gemini-2.5-flash-lite       in 0.10   cached 0.01   write 0      out 0.40
+  GEMINI     gemini-3-flash-preview      in 0      cached 0      write 0      out 0
+
+updated:
+  ANTHROPIC  claude-haiku-4-5-20251001   input_price         0 -> 1.00
+  ANTHROPIC  claude-haiku-4-5-20251001   cached_input_price  0 -> 0.10
+  ANTHROPIC  claude-haiku-4-5-20251001   cache_write_price   0 -> 1.25
+  ANTHROPIC  claude-haiku-4-5-20251001   output_price        0 -> 5.00
+  OPENAI     gpt-5-nano                  input_price         0 -> 0.05
+  OPENAI     gpt-5-nano                  cached_input_price  0 -> 0.005
+  OPENAI     gpt-5-nano                  output_price        0 -> 0.40
+  GEMINI     gemini-2.5-flash            input_price         0 -> 0.30
+  GEMINI     gemini-2.5-flash            cached_input_price  0 -> 0.03
+  GEMINI     gemini-2.5-flash            output_price        0 -> 2.50
+
+notes:
+  ANTHROPIC  cache write is the 5-minute rate; the 1-hour rate is higher
+  ANTHROPIC  claude-fable-5-1 cache reads are 0.025x input, not the usual 0.1x
+  OPENAI     cache write is the short-context rate; long context is 2x
+  OPENAI     gpt-5-nano and older models have no cache write charge, recorded 0
+  GEMINI     no per-token cache write charge; caching is billed per hour of
+             storage, which this table cannot represent, so write is 0
+  GEMINI     gemini-3.8/3.7/3.6-flash are on promotional pricing through
+             2026-12-31; input and output both double on 2027-01-01
+  GEMINI     gemini-3.1-pro-preview and gemini-2.5-pro are tiered by prompt
+             size; recorded the <=200k tier (above it: 4.00/18.00 and
+             2.50/15.00)
+  GEMINI     gemini-3-flash-preview is absent from the paid price table;
+             recorded 0 on the user's instruction that it is free tier. This
+             is the one row not traceable to a published price.
+
+  not added, by decision:
+    OPENAI     ~33 older text models still sold but not featured (gpt-5.x,
+               gpt-4.x, o-series, gpt-3.5, davinci-002, babbage-002).
+               OpenAI marks none of them deprecated.
+    OPENAI     gpt-5.6-cyber, gpt-daybreak-red-latest, gpt-daybreak-blue-latest,
+               gpt-rosalind-research - featured but carry no published price
+    ANTHROPIC  claude-mythos-5 and 5.1 - limited availability programme
+
+  verification:
+    ANTHROPIC  cross-checked against claude.com/pricing, agrees
+    OPENAI     openai.com/api/pricing returned 403; fell back to the per-model
+               page on developers.openai.com, same domain, so a weaker check
+    GEMINI     cloud.google.com Vertex pricing page did not render its tables;
+               prices rest on a single source
+================================================================
