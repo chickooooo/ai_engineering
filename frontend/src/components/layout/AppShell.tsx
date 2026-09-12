@@ -13,11 +13,14 @@ export function AppShell({ title, children }: Props) {
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center border-b border-line px-8">
-          <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
+        <header className="flex h-14 shrink-0 items-center justify-between border-b border-line px-6">
+          <h1 className="text-[15px] font-medium tracking-tight">{title}</h1>
+          <span className="font-mono text-[11px] text-muted">
+            {import.meta.env.VITE_API_BASE_URL || 'localhost:8080'}
+          </span>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-8 py-8">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   )

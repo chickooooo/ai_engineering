@@ -14,8 +14,6 @@ describe('<App />', () => {
   it('puts the health check on the home screen', () => {
     renderWithProviders(<App />)
 
-    expect(
-      screen.getByRole('button', { name: 'Check backend health' }),
-    ).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Check health' })).toBeVisible()
   })
 })

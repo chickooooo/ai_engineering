@@ -2,17 +2,21 @@
 
 /*
  * The palette. Dark only, so these are plain values rather than a pair of
- * light and dark scales.
+ * light and dark scales. Near-black grounds, hairline borders, and one
+ * light neutral accent.
  */
 @theme {
-  --color-surface: #0a0a0b;
-  --color-panel: #121214;
-  --color-raised: #191a1d;
-  --color-line: #26272b;
-  --color-primary: #facc15;
-  --color-primary-soft: #fde047;
-  --color-ink: #f4f4f5;
-  --color-muted: #8e8e97;
+  --color-surface: #0b0b0c;
+  --color-panel: #0f0f11;
+  --color-raised: #17181b;
+  --color-line: #232428;
+  --color-primary: #e2e8f0;
+  --color-primary-hover: #f1f5f9;
+  --color-on-primary: #0b0b0c;
+  --color-ink: #e8e9ec;
+  --color-muted: #8a8b93;
+  --color-ok: #34d399;
+  --color-bad: #f87171;
 }
 
 :root {
@@ -36,11 +40,13 @@ body {
     'Segoe UI',
     Roboto,
     sans-serif;
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 /* Focus rings should read against the dark ground, not disappear into it */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 1px solid var(--color-primary);
   outline-offset: 2px;
 }

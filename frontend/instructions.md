@@ -62,8 +62,11 @@ rules in [../instructions.md](../instructions.md) apply as well.
 - Style with Tailwind utility classes. Do not write CSS files or inline
   `style` props; `src/index.css` holds only the theme tokens and resets.
 - Use the semantic colour tokens from `@theme` — `surface`, `panel`,
-  `raised`, `line`, `primary`, `ink`, `muted` — never a raw Tailwind
-  colour or hex value.
+  `raised`, `line`, `primary`, `on-primary`, `ink`, `muted`, `ok`, `bad`
+  — never a raw Tailwind colour or hex value.
+- Keep the UI dense and neutral: hairline `border-line` rules, `rounded-md`
+  or `rounded-lg`, 12–13px body text, and colour reserved for state.
+- Label a value with `<Field>`, not a sentence. Set data in `font-mono`.
 - The UI is dark only. Do not add `dark:` variants or a theme toggle.
 - Take icons from `lucide-react`, sized with `size-*`, and mark them
   `aria-hidden` when adjacent text already names the control.

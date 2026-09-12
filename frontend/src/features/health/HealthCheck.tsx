@@ -1,64 +1,86 @@
-import { Activity, CircleAlert, Loader2 } from 'lucide-react'
+import { RefreshCw, TriangleAlert } from 'lucide-react'
+import { Field } from '../../components/ui/Field'
 import { useHealth } from './useHealth'
 
-/** A card that asks the backend how it is, and shows the answer. */
+const ENDPOINT = '/api/health'
+
+/** A record panel for the backend, refreshed on demand. */
 export function HealthCheck() {
   const { data, error, isFetching, refetch } = useHealth()
 
   return (
-    <section className="max-w-xl rounded-2xl border border-line bg-panel p-6">
-      <div className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-raised text-primary">
-          <Activity className="size-5" aria-hidden="true" />
-        </span>
-
+    <section className="max-w-2xl overflow-hidden rounded-lg border border-line bg-panel">
+      <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
         <div className="min-w-0">
-          <h2 className="text-base font-semibold tracking-tight">
+          <h2 className="text-[13px] font-semibold tracking-tight">
             Backend status
           </h2>
-          <p className="mt-1 text-sm text-muted">
-            Ask the API whether it is up and answering.
+          <p className="mt-0.5 truncate text-[12px] text-muted">
+            Whether the API is up and answering.
           </p>
         </div>
-      </div>
 
-      <button
-        type="button"
-        onClick={() => void refetch()}
-        disabled={isFetching}
-        className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-surface transition-colors hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isFetching ? (
-          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-        ) : null}
-        {isFetching ? 'Checking…' : 'Check backend health'}
-      </button>
+        <button
+          type="button"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+          className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md bg-primary px-3 text-[12px] font-medium text-on-primary transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <RefreshCw
+            className={`size-3.5 ${isFetching ? 'animate-spin' : ''}`}
+            aria-hidden="true"
+          />
+          {isFetching ? 'Checking' : 'Check health'}
+        </button>
+      </header>
+
+      <dl className="grid grid-cols-2 gap-x-8 gap-y-5 px-5 py-5 sm:grid-cols-3">
+        <Field label="Status">
+          <span role="status" className="flex items-center gap-2">
+            <span
+              className={`size-1.5 shrink-0 rounded-full ${statusDotClass(Boolean(data), Boolean(error))}`}
+              aria-hidden="true"
+            />
+            {statusLabel(data?.status, Boolean(error))}
+          </span>
+        </Field>
+
+        <Field label="Last checked">
+          <span className="font-mono text-muted">
+            {data ? new Date(data.timestamp).toLocaleTimeString() : '—'}
+          </span>
+        </Field>
+
+        <Field label="Endpoint">
+          <span className="font-mono text-muted">{ENDPOINT}</span>
+        </Field>
+      </dl>
 
       {error ? (
         <p
           role="alert"
-          className="mt-5 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-sm text-red-300"
+          className="flex items-center gap-2 border-t border-line bg-raised px-5 py-3 text-[12px] text-bad"
         >
-          <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
+          <TriangleAlert className="size-3.5 shrink-0" aria-hidden="true" />
           Could not reach the backend: {error.message}
-        </p>
-      ) : null}
-
-      {data ? (
-        <p
-          role="status"
-          className="mt-5 flex items-center gap-2 rounded-lg border border-line bg-raised px-3 py-2.5 text-sm"
-        >
-          <span
-            className="size-2 shrink-0 rounded-full bg-emerald-400"
-            aria-hidden="true"
-          />
-          Backend is {data.status}, as of{' '}
-          <span className="text-muted">
-            {new Date(data.timestamp).toLocaleTimeString()}
-          </span>
         </p>
       ) : null}
     </section>
   )
+}
+
+function statusLabel(status: string | undefined, failed: boolean): string {
+  if (status) {
+    return 'Healthy'
+  }
+
+  return failed ? 'Unreachable' : 'Not checked'
+}
+
+function statusDotClass(healthy: boolean, failed: boolean): string {
+  if (healthy) {
+    return 'bg-ok'
+  }
+
+  return failed ? 'bg-bad' : 'bg-muted'
 }

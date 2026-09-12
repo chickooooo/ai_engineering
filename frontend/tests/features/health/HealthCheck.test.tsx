@@ -6,13 +6,17 @@ import { server } from '../../mocks/server'
 import { renderWithProviders } from '../../utils'
 
 describe('<HealthCheck />', () => {
-  it('shows the button and no result before it is clicked', () => {
+  it('starts unchecked, with the button ready', () => {
     renderWithProviders(<HealthCheck />)
 
-    expect(
-      screen.getByRole('button', { name: 'Check backend health' }),
-    ).toBeEnabled()
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Check health' })).toBeEnabled()
+    expect(screen.getByRole('status')).toHaveTextContent('Not checked')
+  })
+
+  it('shows the endpoint it will call', () => {
+    renderWithProviders(<HealthCheck />)
+
+    expect(screen.getByText('/api/health')).toBeVisible()
   })
 
   it('reports the backend as healthy once the button is clicked', async () => {
@@ -20,9 +24,17 @@ describe('<HealthCheck />', () => {
 
     await user.click(screen.getByRole('button'))
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
-      /Backend is healthy/,
-    )
+    expect(await screen.findByText('Healthy')).toBeVisible()
+  })
+
+  it('shows when the check last ran', async () => {
+    const { user } = renderWithProviders(<HealthCheck />)
+    expect(screen.getByText('—')).toBeVisible()
+
+    await user.click(screen.getByRole('button'))
+    await screen.findByText('Healthy')
+
+    expect(screen.queryByText('—')).not.toBeInTheDocument()
   })
 
   it('asks the backend only when the button is clicked', async () => {
@@ -41,7 +53,7 @@ describe('<HealthCheck />', () => {
     expect(calls).toBe(0)
 
     await user.click(screen.getByRole('button'))
-    await screen.findByRole('status')
+    await screen.findByText('Healthy')
 
     expect(calls).toBe(1)
   })
@@ -60,11 +72,22 @@ describe('<HealthCheck />', () => {
     const { user } = renderWithProviders(<HealthCheck />)
     await user.click(screen.getByRole('button'))
 
-    expect(screen.getByRole('button', { name: 'Checking…' })).toBeDisabled()
-    expect(await screen.findByRole('status')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Checking' })).toBeDisabled()
+    expect(await screen.findByText('Healthy')).toBeVisible()
   })
 
-  it('shows an alert when the backend cannot be reached', async () => {
+  it('reports the backend as unreachable when the call fails', async () => {
+    server.use(
+      http.get('/api/health', () => new HttpResponse(null, { status: 503 })),
+    )
+
+    const { user } = renderWithProviders(<HealthCheck />)
+    await user.click(screen.getByRole('button'))
+
+    expect(await screen.findByText('Unreachable')).toBeVisible()
+  })
+
+  it('explains the failure in an alert', async () => {
     server.use(
       http.get('/api/health', () => new HttpResponse(null, { status: 503 })),
     )
@@ -75,6 +98,5 @@ describe('<HealthCheck />', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /Could not reach the backend/,
     )
-    expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 })
