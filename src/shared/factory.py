@@ -1,11 +1,12 @@
 from enum import StrEnum
 
 from .anthropic_client import AnthropicClient
+from .gemini_client import GeminiClient
 from .openai_client import OpenAIClient
 
 # Every client `create_client` can hand back. Spelled as a union rather than
 # the generic base so callers keep a precise type to work with.
-type AnyAIClient = AnthropicClient | OpenAIClient
+type AnyAIClient = AnthropicClient | GeminiClient | OpenAIClient
 
 
 class Provider(StrEnum):
@@ -15,11 +16,13 @@ class Provider(StrEnum):
     """
 
     ANTHROPIC = "anthropic"
+    GEMINI = "gemini"
     OPENAI = "openai"
 
 
 CLIENT_TYPES: dict[Provider, type[AnyAIClient]] = {
     Provider.ANTHROPIC: AnthropicClient,
+    Provider.GEMINI: GeminiClient,
     Provider.OPENAI: OpenAIClient,
 }
 

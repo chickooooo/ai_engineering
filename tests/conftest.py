@@ -11,4 +11,5 @@ import pytest
 def dummy_api_keys(monkeypatch: pytest.MonkeyPatch) -> None:
     """Safety net so a missed patch can never use a real key."""
     monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")

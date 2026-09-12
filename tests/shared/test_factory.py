@@ -33,7 +33,7 @@ def test_provider_is_parsed_from_its_value() -> None:
 def test_unknown_provider_is_rejected() -> None:
     """An unknown provider string raises rather than resolving."""
     with pytest.raises(ValueError):
-        Provider("gemini")
+        Provider("mistral")
 
 
 @pytest.mark.parametrize(

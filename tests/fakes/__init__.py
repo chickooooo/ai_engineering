@@ -13,12 +13,20 @@ from .anthropic import (
     FakeTextBlock,
     FakeToolUseBlock,
 )
+from .gemini import (
+    FakeGemini,
+    FakeGeminiModels,
+    FakeGenerateContentResponse,
+)
 from .models import FakeModels
 from .openai import FakeOpenAI, FakeResponse, FakeResponses
 
 __all__ = [
     "FakeAnthropic",
     "FakeBlock",
+    "FakeGemini",
+    "FakeGeminiModels",
+    "FakeGenerateContentResponse",
     "FakeMessage",
     "FakeMessages",
     "FakeModels",

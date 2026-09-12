@@ -42,7 +42,7 @@ def test_unknown_ai_provider_fails_at_startup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """An unrecognised `AI_PROVIDER` raises instead of being accepted."""
-    monkeypatch.setenv("AI_PROVIDER", "gemini")
+    monkeypatch.setenv("AI_PROVIDER", "mistral")
 
     with pytest.raises(ValidationError):
         Settings()

@@ -33,7 +33,7 @@ def test_create_app_rejects_an_unknown_provider(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A bad `AI_PROVIDER` stops startup rather than the first request."""
-    monkeypatch.setenv("AI_PROVIDER", "gemini")
+    monkeypatch.setenv("AI_PROVIDER", "mistral")
 
     with pytest.raises(ValidationError):
         create_app()

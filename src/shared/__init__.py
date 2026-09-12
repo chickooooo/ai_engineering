@@ -7,6 +7,7 @@ from .factory import (
     create_client,
     default_model,
 )
+from .gemini_client import GeminiClient
 from .openai_client import OpenAIClient
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "AIClient",
     "AnthropicClient",
     "AnyAIClient",
+    "GeminiClient",
     "OpenAIClient",
     "Provider",
     "create_client",
