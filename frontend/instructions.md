@@ -33,6 +33,8 @@ rules in [../instructions.md](../instructions.md) apply as well.
   non-null assertion (`!`) without a comment saying why.
 - Type what crosses the network boundary. Every endpoint gets an exported
   response type in `src/api/`, and it must match what the backend returns.
+- Keep decimal money and prices as strings end to end; a float would round
+  a rate. Parse only to display.
 - Prefer a union of literals to `string` for a value from a fixed set.
 - Let TypeScript infer local and return types; annotate the exported
   surface.
@@ -54,6 +56,10 @@ rules in [../instructions.md](../instructions.md) apply as well.
   through a `useQuery` or `useMutation` hook, never into `useState`.
 - Give each endpoint one hook in its feature folder, wrapping the `src/api`
   function. Components call the hook, never `fetch` directly.
+- Write with `mutate` and an `onSuccess` callback, not `mutateAsync`. An
+  awaited mutation rejects on failure, and the error belongs in the hook's
+  state where the form can render it.
+- Invalidate every list a mutation could have changed, not just its own.
 - Keep query keys next to the hook that owns them, exported as a
   constant.
 - Keep state that is only one component's business in `useState`.
@@ -88,6 +94,13 @@ rules in [../instructions.md](../instructions.md) apply as well.
 - `src/api/` holds one module per backend resource, plus the shared
   request helper.
 - `src/features/<feature>/` holds that feature's components and hooks.
+- `src/pages/` holds one component per route, each rendering `AppShell`.
+- Keep a screen's sub-view in the URL with `useSearchParams`, so it can be
+  linked to and survives a reload. Show one view at a time.
+- Give every filter control an `aria-label`; filter the fetched list in the
+  component rather than refetching per keystroke.
+- Add a route in `src/App.tsx` and a matching `NavLink` in `Sidebar`. Use
+  `NavLink`, never `<a href>`, so the active tab is marked for you.
 - `src/components/` holds only what more than one feature uses.
 - Reach the backend at a `/api`-prefixed path so the dev-server proxy
   handles it. Never hardcode an origin; `VITE_API_BASE_URL` overrides it.

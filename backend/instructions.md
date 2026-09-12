@@ -92,6 +92,12 @@ rules in [../instructions.md](../instructions.md) apply as well.
   generated before committing it.
 - Apply migrations with `make backend-migrate`. Never create tables from
   `Base.metadata.create_all`.
+- Put reference rows the app needs in `src/app/seed.py`, applied with
+  `make backend-seed`. Keep it idempotent, and never seed a price: no
+  provider publishes rates over its API, so they are entered by hand.
+- Tests run against a throwaway database that the suite creates, migrates
+  and drops for itself. Never point them at the development database, and
+  never work around leftover rows — there are none.
 - Drop any Postgres enum type the migration created in its `downgrade`.
   SQLAlchemy creates the type with the table but Alembic generates no drop,
   and the next upgrade then fails on a type that already exists.
@@ -105,6 +111,7 @@ rules in [../instructions.md](../instructions.md) apply as well.
   request.
 - Put anything that needs a live database in `tests/integration/`, and take
   the `session` fixture so the writes roll back.
+- Write tests that assume empty tables. Ids start at 1 on every run.
 - Dispose an engine a test created; a connection left open fails a later
   test through `filterwarnings = error`.
 

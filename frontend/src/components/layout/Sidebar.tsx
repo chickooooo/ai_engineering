@@ -1,12 +1,17 @@
-import { House, PanelLeft, type LucideIcon } from 'lucide-react'
+import { Boxes, House, PanelLeft, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
+import { NavLink } from 'react-router'
 
 type NavItem = {
   label: string
+  to: string
   icon: LucideIcon
 }
 
-const NAV_ITEMS: NavItem[] = [{ label: 'Home', icon: House }]
+const NAV_ITEMS: NavItem[] = [
+  { label: 'Home', to: '/', icon: House },
+  { label: 'Manage Models', to: '/models', icon: Boxes },
+]
 
 /** The app's primary navigation, pinned to the left of every screen. */
 export function Sidebar() {
@@ -48,11 +53,11 @@ export function Sidebar() {
         )}
 
         <ul className="space-y-0.5">
-          {NAV_ITEMS.map(({ label, icon: Icon }) => (
+          {NAV_ITEMS.map(({ label, to, icon: Icon }) => (
             <li key={label}>
-              <a
-                href="#"
-                aria-current="page"
+              <NavLink
+                to={to}
+                end
                 aria-label={label}
                 title={collapsed ? label : undefined}
                 className={`group relative flex h-8 items-center rounded-md text-[13px] text-muted transition-colors hover:bg-raised hover:text-ink aria-[current=page]:bg-raised aria-[current=page]:font-medium aria-[current=page]:text-ink ${
@@ -65,7 +70,7 @@ export function Sidebar() {
                 />
                 <Icon className="size-4 shrink-0" aria-hidden="true" />
                 {collapsed ? null : label}
-              </a>
+              </NavLink>
             </li>
           ))}
         </ul>

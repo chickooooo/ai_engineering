@@ -1,6 +1,6 @@
 .PHONY: quality docker up down docker-up docker-down \
 	backend-quality backend-lint backend-types backend-test backend-format \
-	backend-install backend-migrate backend-migration \
+	backend-install backend-migrate backend-migration backend-seed \
 	frontend-quality frontend-lint frontend-types frontend-test \
 	frontend-format frontend-install
 
@@ -35,10 +35,14 @@ backend-lint:
 backend-types:
 	@$(BACKEND_RUN) uv run mypy .
 
-# Runs in the container, against the real database, on the real schema
+# Runs in the container, against a throwaway database the suite migrates
+# and drops for itself
 backend-test:
-	@docker compose run --rm backend sh -c \
-		"uv run alembic upgrade head && uv run pytest --cov --cov-report=term-missing"
+	@docker compose run --rm backend uv run pytest --cov --cov-report=term-missing
+
+# Put the providers and their default models into the database
+backend-seed:
+	@docker compose run --rm backend uv run python -m app.seed
 
 # Bring the database up to the latest migration
 backend-migrate:

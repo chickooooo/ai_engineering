@@ -1,23 +1,36 @@
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Sidebar } from '../../../src/components/layout/Sidebar'
+import { renderWithProviders } from '../../utils'
 
 describe('<Sidebar />', () => {
   it('shows the product name', () => {
-    render(<Sidebar />)
+    renderWithProviders(<Sidebar />)
 
     expect(screen.getByText('AI Engineering')).toBeVisible()
   })
 
-  it('offers a Home tab', () => {
-    render(<Sidebar />)
+  it('offers a tab for each screen', () => {
+    renderWithProviders(<Sidebar />)
 
     expect(screen.getByRole('link', { name: 'Home' })).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Manage Models' })).toBeVisible()
   })
 
-  it('marks Home as the page being viewed', () => {
-    render(<Sidebar />)
+  it('marks the tab for the current route', () => {
+    renderWithProviders(<Sidebar />, { route: '/models' })
+
+    expect(screen.getByRole('link', { name: 'Manage Models' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('link', { name: 'Home' })).not.toHaveAttribute(
+      'aria-current',
+    )
+  })
+
+  it('marks Home when that is the route', () => {
+    renderWithProviders(<Sidebar />, { route: '/' })
 
     expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute(
       'aria-current',
@@ -26,13 +39,13 @@ describe('<Sidebar />', () => {
   })
 
   it('labels its navigation so it can be skipped to', () => {
-    render(<Sidebar />)
+    renderWithProviders(<Sidebar />)
 
     expect(screen.getByRole('navigation', { name: 'Main' })).toBeVisible()
   })
 
   it('starts expanded', () => {
-    render(<Sidebar />)
+    renderWithProviders(<Sidebar />)
 
     expect(
       screen.getByRole('button', { name: 'Collapse sidebar' }),
@@ -40,8 +53,7 @@ describe('<Sidebar />', () => {
   })
 
   it('hides the labels when collapsed', async () => {
-    const user = userEvent.setup()
-    render(<Sidebar />)
+    const { user } = renderWithProviders(<Sidebar />)
 
     await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
 
@@ -51,8 +63,7 @@ describe('<Sidebar />', () => {
   })
 
   it('keeps the tabs reachable when collapsed', async () => {
-    const user = userEvent.setup()
-    render(<Sidebar />)
+    const { user } = renderWithProviders(<Sidebar />)
 
     await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
 
@@ -63,8 +74,7 @@ describe('<Sidebar />', () => {
   })
 
   it('expands again when the toggle is clicked back', async () => {
-    const user = userEvent.setup()
-    render(<Sidebar />)
+    const { user } = renderWithProviders(<Sidebar />)
 
     await user.click(screen.getByRole('button', { name: 'Collapse sidebar' }))
     await user.click(screen.getByRole('button', { name: 'Expand sidebar' }))

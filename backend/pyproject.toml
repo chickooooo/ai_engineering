@@ -75,6 +75,10 @@ branch = true
 [tool.coverage.report]
 show_missing = true
 skip_covered = false
+exclude_also = [
+    # The guard on a module's entry point; `main` itself is tested
+    "if __name__ == .__main__.:",
+]
 
 [dependency-groups]
 dev = [

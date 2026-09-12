@@ -21,7 +21,14 @@ def test_create_app_mounts_every_router() -> None:
     """The built app exposes both endpoints in its OpenAPI schema."""
     paths = create_app().openapi()["paths"]
 
-    assert set(paths) == {"/", "/health"}
+    assert set(paths) == {
+        "/",
+        "/health",
+        "/providers",
+        "/providers/{provider_id}",
+        "/models",
+        "/models/{model_id}",
+    }
 
 
 def test_create_app_returns_a_fresh_app() -> None:

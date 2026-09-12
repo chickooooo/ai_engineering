@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.config import get_settings
-from app.routers import health, root
+from app.routers import health, llm_models, providers, root
 
 
 def create_app() -> FastAPI:
@@ -16,6 +16,8 @@ def create_app() -> FastAPI:
     )
     app.include_router(root.router)
     app.include_router(health.router)
+    app.include_router(providers.router)
+    app.include_router(llm_models.router)
 
     return app
 
