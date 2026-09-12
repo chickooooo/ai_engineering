@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "alembic>=1.20.0",
     "anthropic>=1.5.0",
     "fastapi>=0.141.1",
     "google-genai>=2.23.0",
@@ -30,6 +31,11 @@ line-length = 79
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "BLE", "SIM", "RUF"]
+
+# Alembic writes these; a constraint expression it emits on one line
+# cannot be wrapped without editing generated code by hand
+[tool.ruff.lint.per-file-ignores]
+"migrations/versions/*.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

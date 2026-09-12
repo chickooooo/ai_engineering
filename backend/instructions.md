@@ -86,11 +86,25 @@ rules in [../instructions.md](../instructions.md) apply as well.
 
 - Read the connection string from `Settings.database_url`; never build one
   from parts or read `DATABASE_URL` directly.
+- Define every table as a model in `src/app/models/`, and change the schema
+  only through a migration. Write it with
+  `make backend-migration m="what changed"`, then read what Alembic
+  generated before committing it.
+- Apply migrations with `make backend-migrate`. Never create tables from
+  `Base.metadata.create_all`.
+- Drop any Postgres enum type the migration created in its `downgrade`.
+  SQLAlchemy creates the type with the table but Alembic generates no drop,
+  and the next upgrade then fails on a type that already exists.
+- Check a migration both ways before committing it: `alembic downgrade
+  base` followed by `alembic upgrade head` must both succeed.
+- Keep prompt and completion text in `LLMMessageContent`, never on
+  `LLMMessage`; usage queries must not be able to read it.
 - Take the engine from `get_engine()`, which is cached for the process.
   Never call `create_engine` anywhere else.
 - Take a session through the `get_session` dependency so it closes with the
   request.
-- Put anything that needs a live database in `tests/integration/`.
+- Put anything that needs a live database in `tests/integration/`, and take
+  the `session` fixture so the writes roll back.
 - Dispose an engine a test created; a connection left open fails a later
   test through `filterwarnings = error`.
 

@@ -1,6 +1,6 @@
 .PHONY: quality docker up down docker-up docker-down \
 	backend-quality backend-lint backend-types backend-test backend-format \
-	backend-install \
+	backend-install backend-migrate backend-migration \
 	frontend-quality frontend-lint frontend-types frontend-test \
 	frontend-format frontend-install
 
@@ -35,14 +35,26 @@ backend-lint:
 backend-types:
 	@$(BACKEND_RUN) uv run mypy .
 
-# Runs in the container, against the real database
+# Runs in the container, against the real database, on the real schema
 backend-test:
-	@docker compose run --rm backend uv run pytest --cov --cov-report=term-missing
+	@docker compose run --rm backend sh -c \
+		"uv run alembic upgrade head && uv run pytest --cov --cov-report=term-missing"
+
+# Bring the database up to the latest migration
+backend-migrate:
+	@docker compose run --rm backend uv run alembic upgrade head
+
+# Write a migration from the difference between the models and the database:
+#   make backend-migration m="Add chat tables"
+backend-migration:
+	@test -n "$(m)" || { echo 'usage: make backend-migration m="what changed"'; exit 1; }
+	@docker compose run --rm backend uv run alembic revision --autogenerate -m "$(m)"
+	@$(MAKE) --no-print-directory backend-format
 
 # Fix what ruff can fix on its own
 backend-format:
-	@$(BACKEND_RUN) uv run ruff check --fix .
 	@$(BACKEND_RUN) uv run ruff format .
+	@$(BACKEND_RUN) uv run ruff check --fix .
 
 # Host-side toolchain, for editor support only. The checks use Docker.
 backend-install:
