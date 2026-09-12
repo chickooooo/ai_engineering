@@ -4,7 +4,7 @@ from pathlib import Path
 from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from shared import Provider
+from ai_clients import Provider
 
 # `.env` sits at the repo root, whatever directory the app runs from
 ENV_FILE = Path(__file__).resolve().parents[2] / ".env"

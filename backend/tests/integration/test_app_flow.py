@@ -11,9 +11,9 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
+from ai_clients import Provider, create_client, default_model
 from app.config import get_settings
 from app.main import create_app
-from shared import Provider, create_client, default_model
 
 
 @pytest.fixture(autouse=True)

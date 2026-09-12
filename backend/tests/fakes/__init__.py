@@ -2,7 +2,7 @@
 
 These replace the SDK object a client wraps, so no test reaches the
 network or spends tokens. The fixtures that patch them in live in
-`tests/shared/conftest.py`.
+`tests/ai_clients/conftest.py`.
 """
 
 from .anthropic import (

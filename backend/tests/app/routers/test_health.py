@@ -6,8 +6,8 @@ from datetime import UTC, datetime
 import pytest
 from fastapi.testclient import TestClient
 
+from ai_clients import AnthropicClient
 from app.main import app
-from shared import AnthropicClient
 
 
 @pytest.fixture

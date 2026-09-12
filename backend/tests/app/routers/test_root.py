@@ -5,8 +5,8 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
+from ai_clients import AnthropicClient, OpenAIClient
 from app.main import app
-from shared import AnthropicClient, OpenAIClient
 
 
 @pytest.fixture

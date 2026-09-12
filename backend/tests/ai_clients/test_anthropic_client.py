@@ -3,7 +3,7 @@
 import anthropic
 import pytest
 
-from shared import AnthropicClient
+from ai_clients import AnthropicClient
 from tests.fakes import FakeAnthropic, FakeTextBlock, FakeToolUseBlock
 
 

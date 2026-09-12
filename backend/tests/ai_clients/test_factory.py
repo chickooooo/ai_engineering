@@ -2,7 +2,7 @@
 
 import pytest
 
-from shared import (
+from ai_clients import (
     CLIENT_TYPES,
     AnthropicClient,
     AnyAIClient,

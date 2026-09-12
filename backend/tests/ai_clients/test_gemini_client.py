@@ -4,7 +4,7 @@ import pytest
 from google import genai
 from google.genai import errors
 
-from shared import GeminiClient
+from ai_clients import GeminiClient
 from tests.fakes import FakeGemini
 
 

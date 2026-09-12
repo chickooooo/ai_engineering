@@ -3,8 +3,8 @@
 import pytest
 from pydantic import ValidationError
 
+from ai_clients import Provider
 from app.config import Settings, get_settings
-from shared import Provider
 
 
 @pytest.fixture(autouse=True)

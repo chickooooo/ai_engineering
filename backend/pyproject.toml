@@ -22,7 +22,7 @@ build-backend = "hatchling.build"
 
 # A src layout: the packages are installed, not picked up from the cwd
 [tool.hatch.build.targets.wheel]
-packages = ["src/app", "src/shared"]
+packages = ["src/app", "src/ai_clients"]
 
 [tool.ruff]
 target-version = "py312"
@@ -40,14 +40,14 @@ plugins = ["pydantic.mypy"]
 
 # No untyped third-party types leak into our own code
 [[tool.mypy.overrides]]
-module = ["app.*", "shared.*"]
+module = ["app.*", "ai_clients.*"]
 disallow_any_unimported = true
 
-# On top of that, `shared` carries no `Any` at all. The app package is
+# On top of that, `ai_clients` carries no `Any` at all. The app package is
 # exempt because every pydantic model subclass trips this rule on
 # pydantic's own internals.
 [[tool.mypy.overrides]]
-module = ["shared.*"]
+module = ["ai_clients.*"]
 disallow_any_explicit = true
 
 [tool.pytest.ini_options]

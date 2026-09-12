@@ -19,7 +19,7 @@ rules in [../instructions.md](../instructions.md) apply as well.
 - Keep the provider SDK fakes in `tests/fakes/`, one module per provider,
   and add one there for any new provider.
 - Expose each fake through a fixture that patches the SDK, in
-  `tests/shared/conftest.py`. Import fakes from `tests.fakes`, never from
+  `tests/ai_clients/conftest.py`. Import fakes from `tests.fakes`, never from
   a `conftest` module.
 - Put suite-wide fixtures in `tests/conftest.py` and folder-specific
   helpers in that folder's `conftest.py`.
@@ -46,7 +46,7 @@ rules in [../instructions.md](../instructions.md) apply as well.
 - Annotate every parameter and return value, in tests as well as in source.
   Write `-> None` on test functions; strict mode skips unannotated ones.
 - Reach for a type parameter before reaching for `Any`.
-- Write no `Any` in `src/shared/`, and none in `src/app/` beyond what
+- Write no `Any` in `src/ai_clients/`, and none in `src/app/` beyond what
   pydantic forces.
 - Prefer a precise union to a loose base class.
 - Use `Literal` and `StrEnum` for values from a fixed set.
@@ -98,7 +98,7 @@ rules in [../instructions.md](../instructions.md) apply as well.
 
 - Put all source under `src/`, and each group of endpoints in its own
   module in `src/app/routers/`.
-- Import by package name (`from shared import Provider`), never by a path
+- Import by package name (`from ai_clients import Provider`), never by a path
   relative to `src/`.
 - Add any new top-level package under `src/` to
   `[tool.hatch.build.targets.wheel]` in `pyproject.toml`, or it will not be
@@ -107,14 +107,14 @@ rules in [../instructions.md](../instructions.md) apply as well.
 
 ## Adding a provider client
 
-1. Subclass `AIClient` in `src/shared/`, parameterised with the SDK client
+1. Subclass `AIClient` in `src/ai_clients/`, parameterised with the SDK client
    type — e.g. `class GeminiClient(AIClient[genai.Client])`.
 2. Set `DEFAULT_MODEL`, and implement `_create_client`, `send_message` and
    `ping`. Make `ping` hit a metadata-only endpoint that costs no tokens.
 3. Add a `Provider` member, an entry in `CLIENT_TYPES`, and the class to
-   the `AnyAIClient` union in `src/shared/factory.py`.
-4. Export it from `src/shared/__init__.py`.
+   the `AnyAIClient` union in `src/ai_clients/factory.py`.
+4. Export it from `src/ai_clients/__init__.py`.
 5. Add a fake to `tests/fakes/`, a fixture patching it in to
-   `tests/shared/conftest.py`, and a
-   `tests/shared/test_<provider>_client.py` covering all three methods.
+   `tests/ai_clients/conftest.py`, and a
+   `tests/ai_clients/test_<provider>_client.py` covering all three methods.
 6. Document the new `AI_PROVIDER` value in `.env.example`.

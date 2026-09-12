@@ -2,7 +2,7 @@
 
 import pytest
 
-from shared import AIClient
+from ai_clients import AIClient
 
 
 class StubClient(AIClient[str]):

@@ -3,7 +3,7 @@
 import openai
 import pytest
 
-from shared import OpenAIClient
+from ai_clients import OpenAIClient
 from tests.fakes import FakeOpenAI
 
 
