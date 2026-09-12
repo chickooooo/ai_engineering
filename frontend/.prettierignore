@@ -1,0 +1,6 @@
+coverage
+dist
+node_modules
+
+# Hand-wrapped prose; Prettier would reflow it
+instructions.md

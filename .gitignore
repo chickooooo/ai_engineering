@@ -9,6 +9,8 @@ wheels/
 # Virtual environments
 .venv
 .env
+.env.*
+!.env.example
 
 # Tool caches and coverage data
 .mypy_cache/
@@ -17,6 +19,20 @@ wheels/
 .coverage
 .coverage.*
 htmlcov/
+
+# Node
+node_modules/
+coverage/
+dist-ssr/
+*.log
+
+# Local process state from `make start`
+.run/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
 
 # Others
 rough/
