@@ -26,8 +26,8 @@ coverage/
 dist-ssr/
 *.log
 
-# Local process state from `make start`
-.run/
+# Container state: the Postgres data directory lives here
+.docker/
 
 # Editors and OS
 .DS_Store

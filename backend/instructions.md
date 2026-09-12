@@ -57,6 +57,9 @@ rules in [../instructions.md](../instructions.md) apply as well.
 ## Checks
 
 - Run `make backend-quality` before finishing, and make all of it pass.
+- Every check runs inside the container, the tests against the real
+  Postgres. Use the `make` targets, never a bare `ruff`, `mypy` or
+  `pytest`.
 - Run `make backend-format` to fix what ruff can fix on its own.
 - Read the **Missing** column of the coverage report and cover what the
   change added. Do not chase the total, and do not add a threshold.
@@ -78,6 +81,18 @@ rules in [../instructions.md](../instructions.md) apply as well.
   reach the caller.
 - Write comments that explain *why*, not *what*. Match the density of the
   surrounding code.
+
+## Database
+
+- Read the connection string from `Settings.database_url`; never build one
+  from parts or read `DATABASE_URL` directly.
+- Take the engine from `get_engine()`, which is cached for the process.
+  Never call `create_engine` anywhere else.
+- Take a session through the `get_session` dependency so it closes with the
+  request.
+- Put anything that needs a live database in `tests/integration/`.
+- Dispose an engine a test created; a connection left open fails a later
+  test through `filterwarnings = error`.
 
 ## Structure
 

@@ -6,7 +6,7 @@
     "suspicious": "deny",
     "perf": "deny"
   },
-  "ignorePatterns": ["coverage", "dist"],
+  "ignorePatterns": ["coverage", "dist", "node_modules"],
   "rules": {
     "react/react-in-jsx-scope": "off"
   }

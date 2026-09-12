@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from shared import Provider
@@ -23,6 +24,11 @@ class Settings(BaseSettings):
     )
 
     ai_provider: Provider = Provider.ANTHROPIC
+
+    # Overridden by the container; the default is for a local Postgres
+    database_url: PostgresDsn = PostgresDsn(
+        "postgresql+psycopg://postgres:postgres@localhost:5432/ai_engineering"
+    )
 
 
 @lru_cache

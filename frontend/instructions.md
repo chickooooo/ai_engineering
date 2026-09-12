@@ -40,6 +40,9 @@ rules in [../instructions.md](../instructions.md) apply as well.
 ## Checks
 
 - Run `make frontend-quality` before finishing, and make all of it pass.
+  Every check runs inside the container, never a bare `npm` command.
+- Keep tool ignore lists in the tool's own config. The container has no
+  parent `.gitignore` to imply them.
 - Run `make frontend-format` to fix what the linter and formatter can fix
   on their own.
 - Read the coverage report and cover what the change added. Do not chase

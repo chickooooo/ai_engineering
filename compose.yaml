@@ -1,0 +1,57 @@
+name: ai-engineering
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      # Bound into the repo, so the data outlives the container
+      - ./.docker/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [ai_engineering]
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./backend:/app
+      # Keeps the image's virtualenv from being shadowed by the bind mount
+      - /app/.venv
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [ai_engineering]
+
+  frontend:
+    build: ./frontend
+    environment:
+      BACKEND_ORIGIN: http://backend:8080
+      VITE_USE_POLLING: 'true'
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      # Keeps the image's node_modules from being shadowed by the bind mount
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks: [ai_engineering]
+
+networks:
+  ai_engineering:
+    name: ai_engineering
+    driver: bridge

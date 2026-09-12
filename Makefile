@@ -1,8 +1,8 @@
-.PHONY: quality start stop \
+.PHONY: quality docker up down docker-up docker-down \
 	backend-quality backend-lint backend-types backend-test backend-format \
-	backend-run backend-install \
+	backend-install \
 	frontend-quality frontend-lint frontend-types frontend-test \
-	frontend-format frontend-run frontend-install
+	frontend-format frontend-install
 
 # An activated venv from an outer shell would make every `uv` call warn.
 # The backend always uses backend/.venv, whatever shell you are in.
@@ -10,9 +10,15 @@ unexport VIRTUAL_ENV
 
 BACKEND_PORT := 8080
 FRONTEND_PORT := 5173
+POSTGRES_PORT := 5432
 BACKEND_URL := http://127.0.0.1:$(BACKEND_PORT)
 FRONTEND_URL := http://127.0.0.1:$(FRONTEND_PORT)
-RUN_DIR := .run
+
+# Every check runs in its container, so Docker is the only thing a
+# contributor needs installed. --no-deps skips starting the database for
+# the checks that do not touch it.
+BACKEND_RUN := docker compose run --rm --no-deps backend
+FRONTEND_RUN := docker compose run --rm --no-deps frontend
 
 # Every check on both sides, with a summary of what passed
 quality:
@@ -23,91 +29,73 @@ quality:
 backend-quality: backend-lint backend-types backend-test
 
 backend-lint:
-	@cd backend && uv run ruff check .
-	@cd backend && uv run ruff format --check .
+	@$(BACKEND_RUN) uv run ruff check .
+	@$(BACKEND_RUN) uv run ruff format --check .
 
 backend-types:
-	@cd backend && uv run mypy .
+	@$(BACKEND_RUN) uv run mypy .
 
-# Reports coverage of everything under backend/src
+# Runs in the container, against the real database
 backend-test:
-	@cd backend && uv run pytest --cov --cov-report=term-missing
+	@docker compose run --rm backend uv run pytest --cov --cov-report=term-missing
 
 # Fix what ruff can fix on its own
 backend-format:
-	@cd backend && uv run ruff check --fix .
-	@cd backend && uv run ruff format .
+	@$(BACKEND_RUN) uv run ruff check --fix .
+	@$(BACKEND_RUN) uv run ruff format .
 
+# Host-side toolchain, for editor support only. The checks use Docker.
 backend-install:
 	@cd backend && uv sync
-
-# Serve on $(BACKEND_URL), reloading on edit
-backend-run:
-	@cd backend && uv run uvicorn app.main:app --port $(BACKEND_PORT) --reload --reload-dir src
 
 # - - - - - Frontend - - - - -
 
 frontend-quality: frontend-lint frontend-types frontend-test
 
 frontend-lint:
-	@cd frontend && npm run --silent lint
-	@cd frontend && npm run --silent format:check
+	@$(FRONTEND_RUN) npm run --silent lint
+	@$(FRONTEND_RUN) npm run --silent format:check
 
 frontend-types:
-	@cd frontend && npm run --silent typecheck
+	@$(FRONTEND_RUN) npm run --silent typecheck
 
-# Reports coverage of everything under frontend/src
+# Needs no backend, so it skips starting one
 frontend-test:
-	@cd frontend && npm run --silent test:coverage
+	@$(FRONTEND_RUN) npm run --silent test:coverage
 
 # Fix what the linter and formatter can fix on their own
 frontend-format:
-	@cd frontend && npm run --silent lint:fix
-	@cd frontend && npm run --silent format
+	@$(FRONTEND_RUN) npm run --silent lint:fix
+	@$(FRONTEND_RUN) npm run --silent format
 
+# Host-side toolchain, for editor support only. The checks use Docker.
 frontend-install:
-	cd frontend && npm install
-
-# Serve on $(FRONTEND_URL), proxying /api to the backend
-frontend-run:
-	@cd frontend && npm run --silent dev
+	@cd frontend && npm install
 
 # - - - - - Both - - - - -
 
-# Start both in the background; logs land in $(RUN_DIR)
-start: stop
-	@mkdir -p $(RUN_DIR)
-	@( $(MAKE) backend-run > $(RUN_DIR)/backend.log 2>&1 & echo $$! > $(RUN_DIR)/backend.pid )
-	@( $(MAKE) frontend-run > $(RUN_DIR)/frontend.log 2>&1 & echo $$! > $(RUN_DIR)/frontend.pid )
-	@for _ in $$(seq 1 100); do \
-		curl -sf $(BACKEND_URL)/health > /dev/null 2>&1 \
-			&& curl -sf $(FRONTEND_URL) > /dev/null 2>&1 && break; \
-		sleep 0.2; \
-	done
-	@curl -sf $(BACKEND_URL)/health > /dev/null 2>&1 \
-		|| { echo "backend failed to start, see $(RUN_DIR)/backend.log"; exit 1; }
-	@curl -sf $(FRONTEND_URL) > /dev/null 2>&1 \
-		|| { echo "frontend failed to start, see $(RUN_DIR)/frontend.log"; exit 1; }
-	@echo "backend  $(BACKEND_URL)  ($(RUN_DIR)/backend.log)"
-	@echo "frontend $(FRONTEND_URL)  ($(RUN_DIR)/frontend.log)"
+# `make docker up` and `make docker down`. `up` and `down` are goals in
+# their own right to make, so they are declared as no-ops below.
+DOCKER_ACTION := $(filter up down,$(MAKECMDGOALS))
 
-# Stop whatever `make start` left running, and wait for the ports to free
-stop:
-	@for pidfile in $(RUN_DIR)/*.pid; do \
-		[ -f "$$pidfile" ] || continue; \
-		pid=$$(cat $$pidfile); \
-		pkill -P $$pid 2>/dev/null || true; \
-		kill $$pid 2>/dev/null || true; \
-		rm -f $$pidfile; \
-	done
-	@for port in $(BACKEND_PORT) $(FRONTEND_PORT); do \
-		pids=$$(lsof -ti tcp:$$port 2>/dev/null); \
-		[ -z "$$pids" ] || kill $$pids 2>/dev/null || true; \
-	done
-	@for port in $(BACKEND_PORT) $(FRONTEND_PORT); do \
-		for _ in $$(seq 1 50); do \
-			lsof -ti tcp:$$port > /dev/null 2>&1 || break; \
-			sleep 0.1; \
-		done; \
-	done
-	@echo "stopped"
+docker:
+ifeq ($(DOCKER_ACTION),)
+	@echo "usage: make docker up   |   make docker down"
+	@exit 1
+else
+	@$(MAKE) --no-print-directory docker-$(DOCKER_ACTION)
+endif
+
+up down:
+	@:
+
+# Build what changed and start every service in the background
+docker-up:
+	@docker compose up --build --detach --wait
+	@echo "backend   $(BACKEND_URL)"
+	@echo "frontend  $(FRONTEND_URL)"
+	@echo "database  postgres://localhost:$(POSTGRES_PORT)"
+
+# Stop and remove the containers. The database files stay in .docker/
+docker-down:
+	@docker compose down --remove-orphans
