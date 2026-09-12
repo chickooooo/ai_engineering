@@ -1,9 +1,10 @@
+import { AppShell } from './components/layout/AppShell'
 import { HealthCheck } from './features/health/HealthCheck'
 
 export default function App() {
   return (
-    <main>
+    <AppShell title="Home">
       <HealthCheck />
-    </main>
+    </AppShell>
   )
 }

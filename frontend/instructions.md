@@ -57,6 +57,19 @@ rules in [../instructions.md](../instructions.md) apply as well.
 - Reach for a client-state store only when state is genuinely shared and
   not server-owned. Add Zustand at that point; do not add it in advance.
 
+## Styling
+
+- Style with Tailwind utility classes. Do not write CSS files or inline
+  `style` props; `src/index.css` holds only the theme tokens and resets.
+- Use the semantic colour tokens from `@theme` — `surface`, `panel`,
+  `raised`, `line`, `primary`, `ink`, `muted` — never a raw Tailwind
+  colour or hex value.
+- The UI is dark only. Do not add `dark:` variants or a theme toggle.
+- Take icons from `lucide-react`, sized with `size-*`, and mark them
+  `aria-hidden` when adjacent text already names the control.
+- Put shared layout in `src/components/layout/`; screens render inside
+  `AppShell`.
+
 ## Conventions
 
 - Format with Prettier: no semicolons, single quotes. Do not hand-format.
