@@ -11,15 +11,34 @@ Ignore the `rough/` folder entirely — never read, change or reference it.
 - Update the existing tests when behaviour changes, and add a test for
   whatever the change made possible.
 - Add a test that fails without the fix when fixing a bug.
-- Mirror `src/` in `tests/`: one `test_<module>.py` per module, in the
-  matching folder. Give every new test folder an `__init__.py`.
-- Never let a test hit a real API or spend tokens. Replace provider SDK
-  clients with the fakes in `tests/shared/conftest.py`, patched in through
-  a `build_client` fixture, and add a fake there for any new provider.
+- Give every test a one-line docstring saying what it checks.
+- Mirror `src/` in `tests/` for unit tests: one `test_<module>.py` per
+  module, in the matching folder. Give every new test folder an
+  `__init__.py`.
+- Never let a test hit a real API or spend tokens, integration tests
+  included.
+- Keep the provider SDK fakes in `tests/fakes/`, one module per provider,
+  and add one there for any new provider.
+- Expose each fake through a fixture that patches the SDK, in
+  `tests/shared/conftest.py`. Import fakes from `tests.fakes`, never from
+  a `conftest` module.
 - Put suite-wide fixtures in `tests/conftest.py` and folder-specific
   helpers in that folder's `conftest.py`.
 - Cover the failure paths, not just the happy one: empty responses, SDK
   errors, and errors the code is *not* meant to swallow.
+
+## Integration tests
+
+- Put them in `tests/integration/`, outside the mirrored folders.
+- Write one whenever a change crosses a seam between modules — settings to
+  app, app to a client, a router to the factory.
+- Wire the real modules together: no fakes, no dependency overrides, and
+  drive them through the same surface a caller would (the environment, the
+  HTTP endpoint).
+- Keep them offline. Arrange them so they need no API key beyond the dummy
+  one the suite plants.
+- Leave the mirrored unit tests in place; an integration test adds to them
+  rather than replacing them.
 
 ## Typing
 
@@ -81,6 +100,7 @@ Ignore the `rough/` folder entirely — never read, change or reference it.
 3. Add a `Provider` member, an entry in `CLIENT_TYPES`, and the class to
    the `AnyAIClient` union in `src/shared/factory.py`.
 4. Export it from `src/shared/__init__.py`.
-5. Add a fake to `tests/shared/conftest.py` and a
+5. Add a fake to `tests/fakes/`, a fixture patching it in to
+   `tests/shared/conftest.py`, and a
    `tests/shared/test_<provider>_client.py` covering all three methods.
 6. Document the new `AI_PROVIDER` value in `.env.example`.
